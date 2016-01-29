@@ -1,5 +1,6 @@
 %% Initialize parameters
-%%short 1 -- 100copies_1
+%%short  -- 100copies_2
+
 clear all;
 set(0,'DefaultFigureWindowStyle','docked')
 %amp = 0.0261;
@@ -13,7 +14,7 @@ load('Eps2.mat');
 load('Eps6.mat');
 
 % Compose row-augmented matrix and compute SVD
-A = [E1Matrix, E2Matrix, E6Matrix]; % COLUMN augmentation
+A = [E1Matrix; E2Matrix; E6Matrix]; % row augmentation
 [m,n]=size(A);
 if (m < n) 
     A = A';
@@ -52,8 +53,8 @@ sigma1 = S1(1:1);
 %amp = norm(A)/normE;
 
 sigNoiseRatio = [200 180 160 140 120 100 80 60 40 20 0];
-Doc_leftEV = zeros(size(V,2),size(sigNoiseRatio,2),numCopies);
-Doc_leftEV_true = zeros(size(V,2),size(sigNoiseRatio,2),numCopies);
+Doc_rightEV = zeros(size(U,2),size(sigNoiseRatio,2),numCopies);
+Doc_rightEV_true = zeros(size(U,2),size(sigNoiseRatio,2),numCopies);
 % S3 = RandStream.create('mt19937ar','NumStreams',1,'StreamIndices',1);
 % RandStream.setGlobalStream(S3);
 for counter_copies = 1 : 1 :numCopies
@@ -62,8 +63,8 @@ for counter_copies = 1 : 1 :numCopies
 	for counter=1:size(sigNoiseRatio,2)
 		[counter_copies,counter]
 		 
-        
-        [Atilde,E]=add_wgn(A,sigNoiseRatio(counter)); 
+		[Atilde,E]=add_wgn(A,sigNoiseRatio(counter));
+		 
 		[Utrue,Strue,Vtrue] = svd(Atilde);  
 		% initialize iterates
 		x0 = v1;
@@ -114,12 +115,14 @@ for counter_copies = 1 : 1 :numCopies
 		
 
 		
-		Doc_leftEV(:,counter,counter_copies) = xvec(:,2); %Since A=A' we are taking xvec as v.
-        Doc_leftEV_true(:,counter,counter_copies) = Vtrue(:,1); %First column of U here is the first right eigen vector of the untransposed row-augmented matrix
+		Doc_rightEV(:,counter,counter_copies) = uvec(:,2); %Since A=A' we are using uvec instead of v.
+        Doc_rightEV_true(:,counter,counter_copies) = Utrue(:,1); %First column of U here is the first right eigen vector of the untransposed row-augmented matrix
 		
 	end
 end
-save('100copies_11NLevels_1.mat','V','sigNoiseRatio','Doc_leftEV','Doc_leftEV_true');
+
+save('100copies_11NLevels_2.mat','U','sigNoiseRatio','Doc_rightEV','Doc_rightEV_true');
+
 
 
 
